@@ -1,32 +1,99 @@
-# Liquid-network
-Run
-python App.py
-press Crtl+ 
-Assigned by https://gist.github.com/LeoComandini/fe51195a4eb42ff5f5f754f51eacf60a
-resource includes
-1.Elements Core : https://gist.github.com/LeoComandini/fe51195a4eb42ff5f5f754f51eacf60a 
+# Plan B Assignment
 
+**Author**: Ivy (@lehsiuchen)
 
-2.Elements RPC docs : https://elementsproject.org/en/doc/23.2.1/rpc/ 
+---
 
+## Introduction
 
-3.Esplora API : https://github.com/Blockstream/esplora/blob/master/API.md 
+This assignment focuses on **Liquid Network**, designing:
+- A **backend Flask application** for data fetching and processing.
+- A **frontend dashboard** for visualized data representation.
 
+The application integrates **Blockstream Esplora API** to:
+- Fetch the latest blocks, transactions, and asset analysis.
+- Analyze asset details, including **Liquid Bitcoin (L-BTC)**.
+- Provide user-friendly insights through visualized data.
 
-4.Blockstream Liquid block explorer : https://blockstream.info/liquid/ 
+This report outlines the implementation and explains the principles briefly.
 
+---
 
-5.Mempool Liquid block explorer : https://liquid.network/
+## Backend Implementation
 
+### 1. Fetching Blocks and Transactions
+- Blocks and transactions are fetched using the **Esplora API**.
+- A retry mechanism is implemented to prevent API overload, ensuring responsible usage of public explorers.
 
-6.USDt explicit transactions https://blockstream.info/liquid/asset/ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2
+### 2. Asset Analysis
+- Identifies whether an asset is **L-BTC** or a custom token.
+- Extracts details such as:
+  - Asset name
+  - Issued amount
+  - Burned amount
+- Generates user-friendly explanations.
 
+### 3. Logic and Tooling
+- Enables data fetching for other time periods.
+- Supports multiple transaction patterns, including:
+  - **Multisig usage**
+  - **Explicit outputs**
+  - **Single-asset transactions**
 
-7.USDt lssuance https://blockstream.info/liquid/tx/abb4080d91849e933ee2ed65da6b436f7c385cf363fb4aa08399f1e27c58ff3d
+---
 
+## Frontend Implementation
 
-8.USDt Reissuance https://blockstream.info/liquid/tx/1cea542d1429cd19b8fe65a801b35a26780dc8011e69834dab6a3fb2e5455f2b
+- **Flask templates** render:
+  - Blocks
+  - Transactions
+  - Asset analysis results
+- **Chart.js** visualizes transaction counts for the latest blocks.
 
+### Features:
+1. **Responsive Design**: Ensures compatibility across devices.
+2. **Auto-Refresh**: Automatically refreshes every two minutes to maintain data freshness.
 
-9.USDt Burn https://blockstream.info/liquid/tx/b823285e7f3af4b6a17db3b3a80d42d6edb1f6e4552555a54cd13a72a9e9fd68
-"# liquid-network" 
+---
+
+## Principles and Improvements
+
+### Principles:
+- The **Liquid Network**, a Bitcoin sidechain, provides high transaction privacy with assets like **L-BTC** and custom tokens.
+- The application:
+  - Uses APIs to fetch transactions.
+  - Analyzes output scripts and transaction patterns, such as multisig usage.
+
+### Suggested Improvements:
+1. **Local Node Support**:
+   - Reduce dependency on public APIs by deploying a local node.
+2. **Advanced Pattern Recognition**:
+   - Enhance analysis to identify specific patterns like **Boltz swaps**.
+
+---
+
+## Achievements and Future Plans
+
+### Achievements:
+- Demonstrated fundamental transaction analysis on Liquid Network.
+- Combined backend data processing with frontend visualization.
+
+### Future Goals:
+1. Add local node integration to reduce reliance on public APIs.
+2. Enhance pattern recognition for more complex transaction types.
+
+---
+
+## How to Use This Project
+
+### Prerequisites:
+- **Python 3.x** installed
+- Install Flask and required dependencies:
+  ```bash
+  pip install flask requests chart.js
+- Run the Flask application:
+  ```bash
+  python app.py
+- Open browser and visit:
+  ```bash
+  http://127.0.0.1:5000
