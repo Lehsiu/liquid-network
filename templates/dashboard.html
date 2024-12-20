@@ -5,50 +5,212 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liquid Network Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f4f4f4; }
+        body {
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f8f9fa; 
+            color: #333; 
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #007bff; 
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1200px; 
+            margin: 0 auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse; 
+            margin: 20px 0;
+            overflow-x: auto; 
+            display: block; 
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff; 
+            color: #fff; 
+            font-weight: bold;
+        }
+
+        
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2; 
+        }
+
+        tr:hover {
+            background-color: #eaf4fc; 
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3; 
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            padding: 10px;
+            background: #ffffff;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .refresh-message {
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            table, th, td {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            h1, h2 {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Liquid Network Dashboard</h1>
-    
-    <h2>Latest Blocks</h2>
-    <table>
-        <tr>
-            <th>Height</th>
-            <th>Block ID</th>
-            <th>Timestamp</th>
-        </tr>
-        {% for block in blocks %}
-        <tr>
-            <td>{{ block.height }}</td>
-            <td>{{ block.id }}</td>
-            <td>{{ block.timestamp }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="container">
+        <h1>Liquid Network Dashboard</h1>
+        
+        <!-- 區塊表格 -->
+        <h2>Latest Blocks</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Height</th>
+                    <th>Block ID</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for block in blocks %}
+                <tr>
+                    <td>{{ block.height }}</td>
+                    <td>{{ block.id }}</td>
+                    <td>{{ block.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <h2>Transactions in the Latest Block</h2>
-    <table>
-        <tr>
-            <th>Transaction ID</th>
-            <th>Size (bytes)</th>
-            <th>Fee (sats)</th>
-        </tr>
-        {% for tx in transactions %}
-        <tr>
-            <td>{{ tx.txid }}</td>
-            <td>{{ tx.size }}</td>
-            <td>{{ tx.fee }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Transactions in the Latest Block -->
+        <h2>Transactions in the Latest Block</h2>
+        {% if transactions %}
+        <table>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Size (bytes)</th>
+                <th>Fee (sats)</th>
+                <th>Outputs</th>
+                <th>Asset Analysis</th>
+            </tr>
+            {% for tx in transactions %}
+            <tr>
+                <td>{{ tx.txid }}</td>
+                <td>{{ tx.size }}</td>
+                <td>{{ tx.fee }}</td>
+                <td>
+                    <ul>
+                        {% for vout in tx.vout %}
+                        <li>Value: {{ vout.value }} - Asset: {{ vout.asset }} - Type: {{ vout.scriptpubkey_type }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        {% for vout in tx.vout %}
+                        <li>
+                            {% if vout.asset_analysis.name != "Unknown" %}
+                                {% if vout.asset_analysis.is_lbtc %}
+                                    L-BTC (Liquid Bitcoin)
+                                {% else %}
+                                    Custom Asset: {{ vout.asset_analysis.name }} ({{ vout.asset_analysis.ticker }})
+                                {% endif %}
+                                - Issued: {{ vout.asset_analysis.issued_amount }}
+                                - Burned: {{ vout.asset_analysis.burned_amount }}
+                            {% else %}
+                                Unknown Asset (Asset ID: {{ vout.asset }})
+                            {% endif %}
+                        </li>
+                        {% endfor %}                    
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No transactions found in the latest block.</p>
+        {% endif %}
+
+        <!-- 資產解釋 -->
+        <h2>Asset Explanations</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Asset ID</th>
+                    <th>Explanation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for explanation in asset_explanations %}
+                <tr>
+                    <td>{{ explanation.asset_id }}</td>
+                    <td>{{ explanation.explanation }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p class="refresh-message">Page auto-refreshes every 2 minutes</p>
+    </div>
+
+    <!-- Block Transaction Count Chart -->
     <h2>Transaction Count in Latest Blocks</h2>
     <canvas id="blockChart" width="400" height="200"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('blockChart').getContext('2d');
         const blockChart = new Chart(ctx, {
@@ -71,49 +233,13 @@
                 }
             }
         });
-   
     </script>
-    <h2>Asset Distribution</h2>
-    {% if assets %}
-    <canvas id="assetChart" width="400" height="200"></canvas>
-    <script>
-        const ctx2 = document.getElementById('assetChart').getContext('2d');
-        const assetChart = new Chart(ctx2, {
-            type: 'pie',
-            data: {
-                labels: [{% for asset, count in assets.items() %} "{{ asset }}", {% endfor %}],
-                datasets: [{
-                    label: 'Asset Distribution',
-                    data: [{% for asset, count in assets.items() %} {{ count }}, {% endfor %}],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true
-            }
-        });
-    </script>
-    {% else %}
-    <p>No asset data available for the latest transactions.</p>
-    {% endif %}
-    
+
+    <!-- Auto Refresh -->
     <script>
         setInterval(() => {
             window.location.reload();
-        }, 60000); // 每 60 秒刷新一次
+        }, 120000); // Refresh every 2 minutes
     </script>
-     
 </body>
 </html>
